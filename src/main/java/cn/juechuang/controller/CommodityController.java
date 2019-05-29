@@ -26,8 +26,7 @@ public class CommodityController {
     public String findAll(Model model){
         List<Commodity> list = service.findAll();
         model.addAttribute("comList", list);
-        System.out.println("怎么回事！");
-
+        System.out.println("你过得好吗！");
         return "com_list";
     }
 
