@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.juechuang.mapper.CommodityMapper">
+    <resultMap id="CommodityMap" type="cn.juechuang.model.Commodity">
+        <id column="sid" property="sid"></id>
+        <result column="twoid" property="twoid"></result>
+        <result column="sname" property="sname"></result>
+        <result column="sprice" property="sprice"></result>
+        <result column="sadress" property="sadress"></result>
+    </resultMap>
+    <insert id="addCommodity" parameterType="cn.juechuang.model.Commodity">
+        insert into tb_commodity values (#{sid}, #{twoid}, #{sname}, #{sprice}, #{sadress})
+    </insert>
+    <select id="findOneCommodity" resultMap="CommodityMap">
+        select
+        com.sid,
+        com.twoid,
+        com.sname,
+        com.sprice,
+        com.sadress
+        from tb_commodity com
+        order by com.sid
+        desc limit 1
+    </select>
+    <delete id="DeleteCommodity" parameterType="java.lang.Integer">
+        delete from tb_commodity where sid=#{sid}
+    </delete>
+    <select id="findAll" resultMap="CommodityMap">
+        select
+        com.sid,
+        com.twoid,
+        com.sname,
+        com.sprice,
+        com.sadress
+        from tb_commodity com
+    </select>
+    <select id="findById" resultMap="CommodityMap">
+        select
+        com.sid,
+        com.twoid,
+        com.sname,
+        com.sprice,
+        com.sadress
+        from tb_commodity com
+        where com.sid=#{sid}
+    </select>
+    <update id="UpdateCommodity" parameterType="cn.juechuang.model.Commodity">
+        update tb_commodity set
+        tb_commodity.twoid=#{twoid},
+        tb_commodity.sname=#{sname},
+        tb_commodity.sprice=#{sprice},
+        tb_commodity.sadress=#{sadress}
+        where sid=#{sid}
+    </update>
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--扫描注解-->
+    <context:component-scan base-package="cn.juechuang"/>
+    <!--1.加载数据库文件配置-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!--2.数据源配置-->
+    <!--id也是自己取的-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!--3.将SqlSessionFactory工厂交给Spring单例管理，默认是单例-->
+    <bean id="SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--将上方的（2.数据源配置）注入，name是固定的，ref对应（2.数据源配置）的bean标签的id-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--引入映射文件的位置,name也是固定的，value为你那些mapper文件配置的位置-->
+        <property name="mapperLocations" value="classpath:mapper/*Mapper.xml"/>
+    </bean>
+
+    <!--4.让spring动态生成Dao(mapper)接口代理实现类,這樣可以不用寫Dao(mapper)的實現類-->
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--传入工厂-->
+        <property name="sqlSessionFactoryBeanName" value="SqlSessionFactory"/>
+        <!--扫描Dao(mapper)包里的所有接口-->
+        <property name="basePackage" value="cn.juechuang.mapper"/>
+    </bean>
+
+
+    <!-- 处理器映射器 -->
+    <!--根据bean的name进行查找后端处理器 将请求的url配置在bean的name中 -->
+    <!-- 这是默认的映射处理器,可以不配置 -->
+    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+    <!--BeanNameUrlHandlerMapping 将bean的name作为url路径-->
+    <!-- spring管理controller类 然后name是url路径-->
+    <!--<bean name="/h" class="cn.juechuang.controller.CommodityController" />-->
+
+    <!-- HandlerAdapter处理器适配器 -->
+    <!-- 这是默认的适配器,即使不配置，那么也是默认就是这个-->
+    <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
+
+    <!-- 配置视图解析器 -->
+    <!-- InternalResourceViewResolver：支持JSP视图解析 -->
+    <!-- viewClass：JstlView表示JSP模板页面需要使用JSTL标签库，所以classpath中必须包含jstl的相关jar包； -->
+    <!-- prefix 和suffix：查找视图页面的前缀和后缀，最终视图的址为： -->
+    <!-- 前缀+逻辑视图名+后缀，逻辑视图名需要在controller中返回ModelAndView指定，比如逻辑视图名为hello，-->
+    <!-- 则最终返回的jsp视图地址 "WEB-INF/view/hello.jsp" -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/JSP/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--注解驱动-->
+    <mvc:annotation-driven/>
+    <!-- 注解扫描!!!-->
+    <context:component-scan base-package="cn.juechuang.controller"/>
+
+    <!--因为在web.xml里面拦截了所有，所以这里要将静态资源映射释放-->
+    <!--方法一-->
+    <mvc:default-servlet-handler/>
+    <!--方法二-->
+    <!--<mvc:resources location="/xadmin/js/" mapping="/xadmin/js/**"/>-->
+    <!--<mvc:resources location="/xadmin/css/" mapping="/xadmin/css/**"/>-->
+    <!--<mvc:resources location="/xadmin/fonts/" mapping="/xadmin/fonts/**"/>-->
+    <!--<mvc:resources location="/xadmin/images/" mapping="/xadmin/images/**"/>-->
+    <!--<mvc:resources location="/xadmin/lib/" mapping="/xadmin/lib/**"/>-->
+
+    <!--上传文件配置-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--允许上传的文件最大大小  单位是byte-->
+        <property name="maxUploadSize" value="60000000"/>
+    </bean>
+
+</beans>
